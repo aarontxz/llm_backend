@@ -5,11 +5,18 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from crud import create_conversation, read_conversation, update_conversation, delete_conversation
 from beanie import init_beanie
 import openai
+from dotenv import load_dotenv
+import os
+# Load environment variables from .env file
+load_dotenv()
+
+# Access the OpenAI API key
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 app = FastAPI()
 
 # Set OpenAI API Key
-openai.api_key = ""
+openai.api_key = openai_api_key
 
 
 # Dependency to initialize Beanie
@@ -44,7 +51,7 @@ async def create_conversation_1(conversation: Conversation, beanie: None = Depen
     
     return conversation
 
-@app.get("/conversations/{conversation_id}", response_model=List[Conversation])
+@app.get("/conversations/{conversation_id}", response_model=Conversation)
 async def read_conversations(conversation_id: str, beanie: None = Depends(initialize_beanie)):
     return await read_conversation(conversation_id)
 
