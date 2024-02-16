@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from typing import List
 from models import Conversation, Prompt, Response
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -9,16 +9,18 @@ import openai
 app = FastAPI()
 
 # Set OpenAI API Key
-openai.api_key = "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"
+openai.api_key = ""
 
-@app.post("/conversations/", response_model=Conversation)
-async def create_conversation_1(conversation: Conversation):
+
+# Dependency to initialize Beanie
+async def initialize_beanie():
     # MongoDB connection URI
     client = AsyncIOMotorClient("mongodb://aaronxz:aaaron@127.0.0.1:27017/")
-
-    # # Initialize Beanie
+    # Initialize Beanie
     await init_beanie(database=client["chat_db"], document_models=[Conversation])
-    
+
+@app.post("/conversations/", response_model=Conversation)
+async def create_conversation_1(conversation: Conversation, beanie: None = Depends(initialize_beanie)):
     print("hello")
     # Generate prompt using conversation history
     prompt_text = generate_prompt_text(conversation)
@@ -43,15 +45,15 @@ async def create_conversation_1(conversation: Conversation):
     return conversation
 
 @app.get("/conversations/{conversation_id}", response_model=List[Conversation])
-async def read_conversations(conversation_id: str):
+async def read_conversations(conversation_id: str, beanie: None = Depends(initialize_beanie)):
     return await read_conversation(conversation_id)
 
 @app.put("/conversations/{conversation_id}", response_model=Conversation)
-async def updateconversation(conversation_id: str, prompts: List[Prompt], responses: List[Response]):
+async def updateconversation(conversation_id: str, prompts: List[Prompt], responses: List[Response], beanie: None = Depends(initialize_beanie)):
     return await update_conversation(conversation_id, prompts, responses)
 
 @app.delete("/conversations/{conversation_id}", response_model=Conversation)
-async def deleteconversation(conversation_id: str):
+async def deleteconversation(conversation_id: str, beanie: None = Depends(initialize_beanie)):
     return await delete_conversation(conversation_id)
 
 def generate_prompt_text(conversation: Conversation) -> str:
