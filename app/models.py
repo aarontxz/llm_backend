@@ -7,6 +7,10 @@ class Prompt(BaseModel):
 
 class Response(BaseModel):
     text: str
+    
+class ConversationUpdate(BaseModel):
+    conversation_id: str
+    prompt: str
 
 class Conversation(Document):
     id: str
