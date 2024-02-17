@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from typing import List
 from models import Conversation, Prompt, Response, ConversationUpdate
 from motor.motor_asyncio import AsyncIOMotorClient
-from crud import create_conversation, read_conversation, update_conversation, delete_conversation
+from crud import create_conversation, read_conversation, update_conversation, delete_conversation, read_all_conversations
 from beanie import init_beanie
 import openai
 from dotenv import load_dotenv
@@ -18,6 +18,16 @@ app = FastAPI()
 # Set OpenAI API Key
 openai.api_key = openai_api_key
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
 
 # Dependency to initialize Beanie
 async def initialize_beanie():
@@ -26,13 +36,17 @@ async def initialize_beanie():
     # Initialize Beanie
     await init_beanie(database=client["chat_db"], document_models=[Conversation])
 
-@app.post("/conversations/{conversation_id}", response_model=Conversation)
-async def createConversation(conversation_id: str, beanie: None = Depends(initialize_beanie)):
-    return await create_conversation(conversation_id)
+@app.post("/conversations", response_model=Conversation)
+async def createConversation(beanie: None = Depends(initialize_beanie)):
+    return await create_conversation()
 
 @app.get("/conversations/{conversation_id}", response_model=Conversation)
 async def readConversations(conversation_id: str, beanie: None = Depends(initialize_beanie)):
     return await read_conversation(conversation_id)
+
+@app.get("/conversations", response_model=List[Conversation])
+async def readAllConversations(beanie: None = Depends(initialize_beanie)):
+    return await read_all_conversations()
 
 @app.put("/conversations", response_model=Conversation)
 async def updateConversation(data: ConversationUpdate, 
@@ -42,9 +56,6 @@ async def updateConversation(data: ConversationUpdate,
     prompt = data.prompt
     # Retrieve the conversation from the database
     conversation = await read_conversation(conversation_id)
-    
-    if not prompt:
-        prompt = "hello what is a bulldog"
 
     # Append the prompt to the conversation's prompts list
     conversation.prompts.append(Prompt(text = prompt))
@@ -55,7 +66,7 @@ async def updateConversation(data: ConversationUpdate,
     # Send prompt query to OpenAI
     try:
         response_text = openai.Completion.create(
-            engine="davinci-002",  # Specify the OpenAI engine
+            engine="gpt-3.5-turbo-instruct",  # Specify the OpenAI engine
             prompt=prompt_text,
             max_tokens=100  # Specify maximum tokens for the response
         ).choices[0].text.strip()
@@ -79,10 +90,10 @@ async def deleteConversation(conversation_id: str, beanie: None = Depends(initia
 def generate_prompt_text(conversation: Conversation) -> str:
     # Generate prompt based on conversation history
     prompt_text = ""
-    if conversation.prompts and conversation.responses:
+    if conversation.prompts:
         for i in range(len(conversation.prompts)):
             prompt_text += f"User: {conversation.prompts[i]}\n"
-            if i==len(conversation.prompts):
+            if i==len(conversation.prompts)-1:
                 prompt_text += f"AI: "
             else:
                 prompt_text += f"AI: {conversation.responses[i]}\n"
