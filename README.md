@@ -29,25 +29,26 @@ This project is a backend component that interacts with a Language Model (LLM), 
 ### Normal set up
 
 1. Clone this repository to your local machine:
-
 ```bash
 git clone https://github.com/aarontxz/llm_backend.git
 ```
 
 2. Navigate to the project directory:
-
 ```bash
 cd llm_backend
 ```
 
 3. Install the requirements
-
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Running the Application
+4. Navigate into app before 
+```bash
+cd app
+```
 
+5. Running the Application
 ```bash
 uvicorn main:app --reload
 ```
@@ -55,7 +56,6 @@ uvicorn main:app --reload
 ### Alternatively use DOCKER
 
 1. Build the Docker Image:
-
 ```bash
 docker-compose build
 ```
