@@ -1,6 +1,6 @@
 # llm_backend
 
-This project is a backend component that interacts with a Language Model (LLM), specifically OpenAI's GPT-3 Turbo. It allows for CRUD operations on conversations containing a history of queries and responses from the LLM.
+This project is a backend component that interacts with a Large Language Model (LLM), specifically OpenAI's GPT-3 Turbo. It allows for CRUD operations on conversations containing a history of queries and responses from the LLM.
 
 ## Features
 
