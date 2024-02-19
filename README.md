@@ -25,6 +25,7 @@ This project is a backend component that interacts with a Large Language Model (
 
 1. Python 3.8 or higher installed on your system.
 2. MongoDB setted up with a database named chat_db
+3. have your own OPENAI_API_KEY ready in the .env file in the app folder.
 
 ### Normal set up
 
@@ -43,7 +44,7 @@ cd llm_backend
 pip install -r requirements.txt
 ```
 
-4. Navigate into app before 
+4. Navigate into app 
 ```bash
 cd app
 ```
