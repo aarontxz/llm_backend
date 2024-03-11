@@ -92,11 +92,12 @@ def generate_prompt_text(conversation: Conversation) -> str:
     prompt_text = ""
     if conversation.prompts:
         for i in range(len(conversation.prompts)):
-            prompt_text += f"User: {conversation.prompts[i]}\n"
+            prompt_text += f"User: {conversation.prompts[i].text}\n"
             if i==len(conversation.prompts)-1:
                 prompt_text += f"AI: "
             else:
-                prompt_text += f"AI: {conversation.responses[i]}\n"
+                prompt_text += f"AI: {conversation.responses[i].text}\n"
+    print(prompt_text)
     return prompt_text
 
 
